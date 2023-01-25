@@ -1,0 +1,17 @@
+[package]
+name    = "tstick"
+version = "0.1.0"
+
+authors = ["Veetaha <veetaha2@gmail.com>"]
+edition = "2021"
+license = "MIT OR Apache-2.0"
+publish = false
+
+[dependencies]
+anyhow             = "1.0"
+clap               = { version = "4.1", features = ["derive"] }
+fs-err             = "2.7"
+humansize          = "2.1"
+shlex              = "1.1"
+tracing            = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
