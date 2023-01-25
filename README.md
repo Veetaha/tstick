@@ -29,13 +29,56 @@ on the build mode and the operating system (`.exe` is added on Windows).
 
 # Usage
 
-Build the tool and run it with the `--help` flag like this:
+See the `--help` output of the tool, which should guide you on what commands are available.
 
+```py
+tstick --help
 ```
-cargo run -- --help
+```
+A tool that automates the management of telegram stickers and emojis
+
+Usage: tstick <COMMAND>
+
+Commands:
+  video  Generate telegram emoji and sticker from a video using ffmpeg
+  help   Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help     Print help
+  -V, --version  Print version
 ```
 
-You can pass any arguments to the too after the `cargo run --`.
-See the commands and agruments available in the help message and go from there.
+```py
+tstick video --help
+```
+```
+Generate telegram emoji and sticker from a video using ffmpeg
 
-[rust toolchain]: https://www.rust-lang.org/tools/install
+The output files will be put into the same directory where the input file is located, but with names `emoji.webm` and `sticker.webm` respectively.
+
+This command implements the two-pass method described in the following docs: <https://trac.ffmpeg.org/wiki/Encode/VP9>
+
+Usage: tstick video [OPTIONS] --input <INPUT> [FFMPEG_ARGS]...
+
+Arguments:
+  [FFMPEG_ARGS]...
+          Arguments that will be passed to ffmpeg between the input and output args
+
+Options:
+  -i, --input <INPUT>
+          Path to the input file to convert into a sticker and emoji
+
+      --no-emoji
+          Don't generate an emoji
+
+      --no-sticker
+          Don't generate a sticker
+
+      --start-crf <START_CRF>
+          Set a custom CRF value to start search for the most optimal one from
+
+          [default: 18]
+
+  -h, --help
+          Print help (see a summary with '-h')
+```
