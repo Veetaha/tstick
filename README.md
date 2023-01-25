@@ -16,7 +16,7 @@ You can download the `tstick` binary from our [Github Releases](https://github.c
 
 # Build
 
-To build it you need to have the [rust toolchain] installed.
+To build it you need to have the [rust toolchain](https://www.rust-lang.org/tools/install) installed.
 
 Use `cargo` to build from sources (add `--release` flag to build with optimizations):
 
@@ -26,6 +26,14 @@ cargo build
 
 The output binary will be available at `target/(debug|release)/tstick[.exe]` depending
 on the build mode and the operating system (`.exe` is added on Windows).
+
+To build and run the application the following command can be used:
+
+```
+cargo run -- --help
+```
+
+You can pass options to the application after the first `--`.
 
 # Usage
 
