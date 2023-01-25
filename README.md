@@ -10,6 +10,10 @@ Specify the input file and any additional options to `ffmpeg`, and `tstick` will
 
 ![](https://user-images.githubusercontent.com/36276403/214474683-9e0566cb-86ba-48e8-b486-234a4547e5f4.gif)
 
+# Install
+
+You can download the `tstick` binary from our [Github Releases](https://github.com/Veetaha/tstick/releases).
+
 # Build
 
 To build it you need to have the [rust toolchain] installed.
