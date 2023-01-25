@@ -6,7 +6,7 @@ This is a cross-platform tool to automate the management of Telegram emojis and 
 
 Here is a quick demo that displays how `tstick` can be used to generate a video emoji and a sticker.
 
-Specify the input file and any additional options to `ffmpeg`, and `tstick` will do its best to find the best quality options (CRF) to fit into Telegram's emoji/sticker file size limits
+Specify the input file and any additional options to `ffmpeg`, and `tstick` will find the best quality options (CRF) to fit into Telegram's emoji/sticker file size limits
 
 ![](https://user-images.githubusercontent.com/36276403/214474683-9e0566cb-86ba-48e8-b486-234a4547e5f4.gif)
 
