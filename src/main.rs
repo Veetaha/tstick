@@ -1,10 +1,15 @@
 use tracing::error;
 use tracing::metadata::LevelFilter;
 use tracing_subscriber::prelude::*;
+use std::process::ExitCode;
 
-fn main() {
-    if let Err(err) = try_main() {
-        error!("Exitting with an error...\n{err:?}");
+fn main() -> ExitCode {
+    match try_main() {
+        Ok(()) => ExitCode::SUCCESS,
+        Err(err) => {
+            error!("Exiting with an error...\n{err:?}");
+            ExitCode::FAILURE
+        }
     }
 }
 
