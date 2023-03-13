@@ -1,5 +1,7 @@
 mod cmd;
 mod display;
+mod video;
+mod util;
 
 use clap::Parser;
 use cmd::Cmd;
