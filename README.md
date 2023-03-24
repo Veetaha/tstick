@@ -49,7 +49,7 @@ A tool that automates the management of telegram stickers and emojis
 Usage: tstick <COMMAND>
 
 Commands:
-  video  Generate telegram emoji and sticker from a video using ffmpeg
+  video  Generate telegram emoji or sticker from a video using ffmpeg
   help   Print this message or the help of the given subcommand(s)
 
 Options:
@@ -61,32 +61,42 @@ Options:
 tstick video --help
 ```
 ```
-Generate telegram emoji and sticker from a video using ffmpeg
+Generate telegram emoji or sticker from a video using ffmpeg
 
-The output files will be put into the same directory where the input file is located, but with names `emoji.webm` and `sticker.webm` respectively.
+The output file will be put into the same directory where the input file is located, but with name `emoji.webm` or `sticker.webm` by default.
 
 This command implements the two-pass method described in the following docs: <https://trac.ffmpeg.org/wiki/Encode/VP9>
 
-Usage: tstick video [OPTIONS] --input <INPUT> [FFMPEG_ARGS]...
+Usage: tstick video [OPTIONS] <KIND> <INPUT> [OUTPUT] [FFMPEG_ARGS]...
 
 Arguments:
+  <KIND>
+          Kind of the output to generate
+
+          [possible values: emoji, sticker]
+
+  <INPUT>
+          Path to the input media file
+
+  [OUTPUT]
+          Path to the output. By default, the output will be put into the same directory under the name `emoji.webm` or `sticker.webm` depending on the kind of the output
+
   [FFMPEG_ARGS]...
-          Arguments that will be passed to ffmpeg between the input and output args
+          Additional arguments that will be passed to ffmpeg between the input and output args. Beware that they may break the internal logic of generating the `ffmpeg` command. For example, if you need additional video filter use `--filter` flag instead
 
 Options:
-  -i, --input <INPUT>
-          Path to the input file to convert into a sticker and emoji
+      --begin <BEGIN>
+          The time from which the video will be cut.
 
-      --no-emoji
-          Don't generate an emoji
+          The total video duration must not exceed 3 seconds.
 
-      --no-sticker
-          Don't generate a sticker
+      --end <END>
+          The time to which the video will be cut.
 
-      --start-crf <START_CRF>
-          Set a custom CRF value to start search for the most optimal one from
+          The total video duration must not exceed 3 seconds.
 
-          [default: 18]
+      --filter <FILTER>
+          The value of the video filter flag that will be passed to ffmpeg before rescaling it to the needed size
 
   -h, --help
           Print help (see a summary with '-h')
