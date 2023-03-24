@@ -11,8 +11,6 @@ impl DurationExt for Duration {
     }
 }
 
-
-
 pub(crate) fn parse(arg: &str) -> Result<Duration> {
     let uint = |arg: &str| arg.parse::<u32>().map(f64::from);
     let uf64 = |arg: &str| {

@@ -1,4 +1,4 @@
-use anyhow::{bail, Result, Context};
+use anyhow::{bail, Context, Result};
 use itertools::Itertools;
 use nu_ansi_term::{Color, Style};
 use std::iter;
@@ -99,7 +99,7 @@ fn render_cli<'a>(
 
     let args = args.map(|arg| {
         let arg = shlex::quote(arg);
-        if arg.starts_with("-") {
+        if arg.starts_with('-') {
             Color::Blue.paint(arg)
         } else {
             Style::new().paint(arg)

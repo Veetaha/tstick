@@ -1,7 +1,7 @@
 mod video;
 
-pub use video::*;
 use async_trait::async_trait;
+pub use video::*;
 
 #[async_trait]
 pub(crate) trait Cmd {

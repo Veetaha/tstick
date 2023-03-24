@@ -1,7 +1,7 @@
+use std::process::ExitCode;
 use tracing::error;
 use tracing::metadata::LevelFilter;
 use tracing_subscriber::prelude::*;
-use std::process::ExitCode;
 
 #[tokio::main]
 async fn main() -> ExitCode {

@@ -135,7 +135,7 @@ impl VideoGenContext {
         let elapsed = display::elpased(start);
 
         info!("🎉 Found a fitting CRF {crf}, which generates {size_display} in {elapsed}");
-        return Ok(output);
+        Ok(output)
     }
 
     fn two_pass_context(self) -> Result<TwoPassContext> {

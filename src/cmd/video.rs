@@ -3,8 +3,8 @@ use anyhow::Result;
 use async_trait::async_trait;
 use clap::Parser;
 use std::path::PathBuf;
-use std::time::Duration;
 use std::sync::Arc;
+use std::time::Duration;
 
 /// Generate telegram emoji or sticker from a video using ffmpeg
 ///
