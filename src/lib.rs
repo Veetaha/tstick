@@ -2,6 +2,7 @@ mod cmd;
 mod display;
 mod video;
 mod util;
+mod ffmpeg;
 
 use clap::Parser;
 use cmd::Cmd;
@@ -13,8 +14,8 @@ enum Args {
     Video(cmd::Video),
 }
 
-pub fn run() -> anyhow::Result<()> {
+pub async fn run() -> anyhow::Result<()> {
     match Args::parse() {
-        Args::Video(cmd) => cmd.run(),
+        Args::Video(cmd) => cmd.run().await,
     }
 }

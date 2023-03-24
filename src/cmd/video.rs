@@ -1,11 +1,15 @@
 use crate::video::StickerKind;
 use anyhow::Result;
+use async_trait::async_trait;
 use clap::Parser;
 use std::path::PathBuf;
-/// Generate telegram emoji and sticker from a video using ffmpeg
+use std::time::Duration;
+use std::sync::Arc;
+
+/// Generate telegram emoji or sticker from a video using ffmpeg
 ///
-/// The output files will be put into the same directory where the input file
-/// is located, but with names `emoji.webm` and `sticker.webm` respectively.
+/// The output file will be put into the same directory where the input file
+/// is located, but with name `emoji.webm` or `sticker.webm` by default.
 ///
 /// This command implements the two-pass method described in the following docs:
 /// <https://trac.ffmpeg.org/wiki/Encode/VP9>
@@ -15,12 +19,25 @@ pub struct Video {
     #[clap(value_enum)]
     kind: StickerKind,
 
-    /// Path to the input file to convert into a sticker and emoji
+    /// Path to the input media file
     input: PathBuf,
 
-    /// Set a custom CRF value to start search for the most optimal one from
-    #[clap(long, default_value_t = 18)]
-    start_crf: usize,
+    /// Path to the output. By default, the output will be put into the same
+    /// directory under the name `emoji.webm` or `sticker.webm` depending on
+    /// the kind of the output.
+    output: Option<PathBuf>,
+
+    /// The time from which the video will be cut.
+    ///
+    /// The total video duration must not exceed 3 seconds.
+    #[clap(long, value_parser = crate::util::duration::parse)]
+    begin: Option<Duration>,
+
+    /// The time to which the video will be cut.
+    ///
+    /// The total video duration must not exceed 3 seconds.
+    #[clap(long, value_parser = crate::util::duration::parse)]
+    end: Option<Duration>,
 
     /// The value of the video filter flag that will be passed to ffmpeg
     /// before rescaling it to the needed size
@@ -34,23 +51,27 @@ pub struct Video {
     ffmpeg_args: Vec<String>,
 }
 
+#[async_trait]
 impl crate::cmd::Cmd for Video {
-    fn run(self) -> anyhow::Result<()> {
-        self.generate_output(self.kind)?;
+    async fn run(self) -> anyhow::Result<()> {
+        self.generate_output(self.kind).await?;
 
         Ok(())
     }
 }
 
 impl Video {
-    fn generate_output(&self, sticker_kind: StickerKind) -> Result<()> {
+    async fn generate_output(&self, sticker_kind: StickerKind) -> Result<()> {
         crate::video::VideoGenContext {
+            sticker_kind,
             input: self.input.clone(),
-            start_crf: self.start_crf,
+            begin: self.begin,
+            end: self.end,
             filter: self.filter.clone(),
             ffmpeg_args: self.ffmpeg_args.clone(),
-            sticker_kind,
+            ffmpeg: Arc::new(crate::ffmpeg::FfmpegProcess),
         }
         .generate_output()
+        .await
     }
 }

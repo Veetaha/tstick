@@ -3,8 +3,9 @@ use tracing::metadata::LevelFilter;
 use tracing_subscriber::prelude::*;
 use std::process::ExitCode;
 
-fn main() -> ExitCode {
-    match try_main() {
+#[tokio::main]
+async fn main() -> ExitCode {
+    match try_main().await {
         Ok(()) => ExitCode::SUCCESS,
         Err(err) => {
             error!("Exiting with an error...\n{err:?}");
@@ -13,7 +14,7 @@ fn main() -> ExitCode {
     }
 }
 
-fn try_main() -> anyhow::Result<()> {
+async fn try_main() -> anyhow::Result<()> {
     let fmt_layer = tracing_subscriber::fmt::layer().with_target(true).compact();
 
     let filter = tracing_subscriber::EnvFilter::builder()
@@ -26,7 +27,7 @@ fn try_main() -> anyhow::Result<()> {
         .with(filter)
         .init();
 
-    tstick::run()?;
+    tstick::run().await?;
 
     Ok(())
 }
