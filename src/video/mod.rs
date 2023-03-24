@@ -102,7 +102,7 @@ impl VideoGenContext {
 
             let output = two_pass.run(mid).await?;
 
-            // Repeat until we have a range of 1 or 2 values
+            // Repeat until we have a range of 1 value
             if min == max {
                 break (mid, output);
             }
