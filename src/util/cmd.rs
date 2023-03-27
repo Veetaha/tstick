@@ -85,7 +85,7 @@ async fn run_cmd(
     if !output.status.success() {
         let status = output.status;
 
-        bail!("Process failed with code {status}");
+        bail!("Process `{program}` failed with {status}");
     }
 
     Ok(output.stdout)

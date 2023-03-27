@@ -10,17 +10,22 @@ publish = false
 [dependencies]
 anyhow             = "1.0"
 async-trait        = "0.1"
+buildstructor      = "0.5"
 clap               = { version = "4.1", features = ["derive"] }
-fs-err             = "2.7"
+fs-err             = { version = "2.7", features = ["tokio"] }
+futures            = "0.3"
 humansize          = "2.1"
 itertools          = "0.10"
 nu-ansi-term       = "0.47"
 shlex              = "1.1"
 strum              = { version = "0.24", features = ["derive"] }
 tempfile           = "3.4"
-tokio              = { version = "1.26", features = ["macros", "process", "signal", "rt-multi-thread"] }
 tracing            = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+[dependencies.tokio]
+features = ["macros", "process", "signal", "rt-multi-thread"]
+version  = "1.26"
 
 [dev-dependencies]
 expect-test = "1.2"

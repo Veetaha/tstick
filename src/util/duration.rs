@@ -56,6 +56,7 @@ mod tests {
         assert_parse("00:20:10.5", expect!["1210.5s"]);
     }
 
+    #[test]
     fn error_parse() {
         parse("-2").unwrap_err();
     }

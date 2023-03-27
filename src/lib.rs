@@ -4,6 +4,22 @@ mod ffmpeg;
 mod util;
 mod video;
 
+// We don't care if some of the imports here are not used. They may be used
+// at some point. It's just convenient not to import them manually all the
+// time a new logging macro is needed.
+#[allow(unused_imports)]
+mod prelude {
+    pub(crate) use anyhow::Context;
+    pub(crate) use fs_err::tokio as fs;
+    pub(crate) use itertools::Itertools;
+    pub(crate) use tracing::{
+        debug, debug_span, error, error_span, info, info_span, instrument, trace, trace_span, warn,
+        warn_span, Instrument as _,
+    };
+
+    pub(crate) type Result<T = (), E = anyhow::Error> = std::result::Result<T, E>;
+}
+
 use clap::Parser;
 use cmd::Cmd;
 
