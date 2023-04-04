@@ -1,11 +1,9 @@
 use anyhow::{bail, ensure, Ok, Result};
+use easy_ext::ext;
 use std::time::Duration;
 
-pub(crate) trait DurationExt {
-    fn to_secs_f64(self) -> f64;
-}
-
-impl DurationExt for Duration {
+#[ext(DurationExt)]
+pub(crate) impl Duration {
     fn to_secs_f64(self) -> f64 {
         self.as_secs() as f64 + self.subsec_nanos() as f64 * 1e-9
     }
@@ -56,6 +54,7 @@ mod tests {
         assert_parse("00:20:10.5", expect!["1210.5s"]);
     }
 
+    #[test]
     fn error_parse() {
         parse("-2").unwrap_err();
     }
