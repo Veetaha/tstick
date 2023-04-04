@@ -3,7 +3,6 @@ use crate::video::{MultiVideoGenContext, PackEntryKind};
 use async_trait::async_trait;
 use clap::{ArgGroup, Parser};
 use std::num::NonZeroUsize;
-use std::path::PathBuf;
 use std::time::Duration;
 
 /// Generate telegram emoji or sticker from a video using ffmpeg
@@ -31,7 +30,7 @@ pub struct Video {
     /// Make sure there are no other files in the directory other than the ones to
     /// generate emoji/stickers for.
     #[clap(long, short)]
-    input: Vec<PathBuf>,
+    input: Vec<Utf8PathBuf>,
 
     /// Path to the output directory where the generated emoji/stickers will be put.
     /// The output files will be named after the input files using the following pattern:
@@ -45,7 +44,7 @@ pub struct Video {
     /// Make sure all input file names are unique, otherwise there will be conflicts
     /// when writing to the output directory.
     #[clap(long, short)]
-    output: Option<PathBuf>,
+    output: Option<Utf8PathBuf>,
 
     /// Overwrite the output files if they already exist, without asking for confirmation
     #[clap(long)]

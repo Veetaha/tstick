@@ -1,9 +1,8 @@
 use crate::display;
 use crate::ffmpeg::Ffmpeg;
 use crate::prelude::*;
-use crate::util::{iter, path};
+use crate::util::iter;
 use buildstructor::buildstructor;
-use fs_err::tokio as fs;
 use std::sync::Arc;
 
 /// Context for running ffmpeg with two passes using VP9 encoding for webm
@@ -37,12 +36,24 @@ impl TwoPassContext {
 }
 
 impl TwoPassContext {
-    async fn run_ffmpeg(&self, trailing_args: &[&str]) -> Result<Vec<u8>> {
-        let args = iter::strs(&self.prefix_args)
+    fn make_ars(&self, trailing_args: &[&str]) -> Vec<String> {
+        iter::strs(&self.prefix_args)
             .chain(iter::strs(trailing_args))
-            .collect();
+            .collect()
+    }
 
-        self.ffmpeg.run(args).await
+    async fn run_ffmpeg(&self, trailing_args: &[&str]) -> Result<Vec<u8>> {
+        self.ffmpeg.run(self.make_ars(trailing_args)).await
+    }
+
+    async fn run_ffmpeg_with_output_file(
+        &self,
+        trailing_args: &[&str],
+        output_file: &Utf8Path,
+    ) -> Result<Vec<u8>> {
+        self.ffmpeg
+            .run_with_output_file(self.make_ars(trailing_args), output_file)
+            .await
     }
 
     pub(crate) async fn run(&mut self, crf: usize) -> Result<Arc<[u8]>> {
@@ -67,7 +78,7 @@ impl TwoPassContext {
         self.run_ffmpeg(&["-crf", crf_str, "-pass", "1", "-f", "null", null_output])
             .await?;
 
-        let output = self.temp_dir.path().join("output.webm");
+        let output = self.temp_dir.path().unwrap_utf8().join("output.webm");
 
         // Second pass
         //
@@ -80,10 +91,9 @@ impl TwoPassContext {
         //
         // Note that the difference isn't observed when the emoji is sent without text
         // and thus displayed in bigger size.
-        self.run_ffmpeg(&["-crf", crf_str, "-pass", "2", path::to_str(&output)?])
+        let output = self
+            .run_ffmpeg_with_output_file(&["-crf", crf_str, "-pass", "2"], &output)
             .await?;
-
-        let output = fs::read(output).await?;
 
         let elapsed = display::elpased(start);
 

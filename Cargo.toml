@@ -11,7 +11,9 @@ publish = false
 anyhow             = "1.0"
 async-trait        = "0.1"
 buildstructor      = "0.5"
+camino             = "1.1"
 clap               = { version = "4.1", features = ["derive"] }
+easy-ext           = "1.0"
 fs-err             = { version = "2.7", features = ["tokio"] }
 futures            = "0.3"
 humansize          = "2.1"
@@ -29,4 +31,5 @@ version  = "1.26"
 
 [dev-dependencies]
 expect-test = "1.2"
+lazy-regex  = "2.5"
 test-log    = { version = "0.2", features = ["trace"], default-features = false }

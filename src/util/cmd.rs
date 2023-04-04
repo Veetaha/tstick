@@ -1,8 +1,8 @@
+use crate::prelude::*;
 use anyhow::{bail, Context, Result};
 use itertools::Itertools;
 use nu_ansi_term::{Color, Style};
 use std::iter;
-use std::path::Path;
 use std::process::Stdio;
 use std::time::Duration;
 use tokio::process::Command;
@@ -16,14 +16,14 @@ const LONG_CMD_THRESHOLD: usize = 100;
 
 // FIXME: this may be useful?
 #[allow(unused)]
-pub(crate) async fn get_media_duration(path: &Path) -> Result<Duration> {
+pub(crate) async fn get_media_duration(path: &Utf8Path) -> Result<Duration> {
     let args = [
         "-show_entries",
         "format=duration",
         "-print_format",
         "csv=print_section=0",
         "-i",
-        &path.to_string_lossy(),
+        path.as_str(),
     ];
 
     let output = ffprobe(args).await?;
