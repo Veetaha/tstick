@@ -1,5 +1,5 @@
 use super::webm_vp9_two_pass::TwoPassContext;
-use super::{PackEntryKind, MAX_CRF};
+use super::{PackKind, MAX_CRF};
 use crate::display;
 use crate::ffmpeg::Ffmpeg;
 use crate::prelude::*;
@@ -29,7 +29,7 @@ pub(crate) struct SingleVideoGenContext {
     //
     // See: https://github.com/rust-lang/rust/issues/102211
     pub(crate) options: Arc<SingleVideoGenOptions>,
-    pub(crate) pack_entry_kind: PackEntryKind,
+    pub(crate) pack_kind: PackKind,
     pub(crate) input: Utf8StemmedPathBuf,
     pub(crate) output: Utf8PathBuf,
 }
@@ -39,7 +39,7 @@ impl SingleVideoGenContext {
         name = "gen",
         skip_all,
         fields(
-            pack = %self.pack_entry_kind,
+            pack = %self.pack_kind,
             input = %self.input.as_path(),
         )
     )]
@@ -62,7 +62,7 @@ impl SingleVideoGenContext {
         let mut min = 0;
         let mut max = MAX_CRF;
 
-        let max_bytes = self.pack_entry_kind.max_bytes();
+        let max_bytes = self.pack_kind.max_bytes();
 
         let max_bytes_display = &display::bold_human_size(max_bytes);
 
@@ -82,8 +82,8 @@ impl SingleVideoGenContext {
             // greater than the limit, so for example if crf could take only two
             // values `[0, 1]`, then we would always need to do 2 iterations.
             // even though `log2(2) == 1`
-            let percent = (f64::from(i) / (((MAX_CRF + 1) as f64).log2() + 1.0)) * 100.0;
             i += 1;
+            let percent = (f64::from(i) / (((MAX_CRF + 1) as f64).log2() + 1.0)) * 100.0;
 
             let output = two_pass
                 .run(mid)
@@ -137,10 +137,10 @@ impl SingleVideoGenContext {
             .to_string_lossy()
             .into_owned();
 
-        let max_side = self.pack_entry_kind.bounding_box();
+        let max_side = self.pack_kind.bounding_box();
 
         let ultimate_padding = self
-            .pack_entry_kind
+            .pack_kind
             .must_be_square()
             .then(|| format!("pad={max_side}:{max_side}:-1:-1:color=0x00000000"));
 
@@ -201,7 +201,7 @@ impl SingleVideoGenContext {
         Ok(TwoPassContext::builder()
             .prefix_args(prefix_args)
             .ffmpeg(self.options.ffmpeg.clone())
-            .max_bytes(self.pack_entry_kind.max_bytes())
+            .max_bytes(self.pack_kind.max_bytes())
             .temp_dir(temp_dir)
             .build())
     }
@@ -223,7 +223,7 @@ fn optional_named_arg(name: &str, option: Option<String>) -> impl Iterator<Item 
 
 #[cfg(test)]
 mod tests {
-    use super::PackEntryKind;
+    use super::PackKind;
     use super::*;
     use crate::util::path::Utf8StemmedPathBuf;
     use crate::video::testing::SharedMockFfmpeg;
@@ -240,9 +240,9 @@ mod tests {
     }
 
     async fn assert_crf_search(best_crf: usize, snap: Expect) {
-        let pack_entry_kind = PackEntryKind::Sticker;
+        let pack_kind = PackKind::Sticker;
 
-        let mock_ffmpeg = SharedMockFfmpeg::with_best_crf(best_crf, pack_entry_kind);
+        let mock_ffmpeg = SharedMockFfmpeg::with_best_crf(best_crf, pack_kind);
         let options = SingleVideoGenOptions {
             begin: None,
             end: None,
@@ -254,14 +254,14 @@ mod tests {
 
         let ctx = SingleVideoGenContext {
             options: Arc::new(options),
-            pack_entry_kind: pack_entry_kind,
+            pack_kind,
             input: Utf8StemmedPathBuf::try_from(Utf8PathBuf::from("input")).unwrap(),
             output: Utf8PathBuf::from("output"),
         };
 
         let output = ctx.generate_bytes().await.unwrap();
 
-        assert_eq!(output.len(), pack_entry_kind.max_bytes());
+        assert_eq!(output.len(), pack_kind.max_bytes());
 
         let mock_ffmpeg = mock_ffmpeg.unwrap();
 

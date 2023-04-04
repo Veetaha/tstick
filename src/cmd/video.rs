@@ -1,7 +1,7 @@
 use crate::prelude::*;
-use crate::video::{MultiVideoGenContext, PackEntryKind};
+use crate::video::{MultiVideoGenContext, PackKind};
 use async_trait::async_trait;
-use clap::{ArgGroup, Parser};
+use clap::{Args, Parser};
 use std::num::NonZeroUsize;
 use std::time::Duration;
 
@@ -13,15 +13,9 @@ use std::time::Duration;
 /// This command implements the two-pass method described in the following docs:
 /// <https://trac.ffmpeg.org/wiki/Encode/VP9>
 #[derive(Parser, Debug)]
-#[clap(group(video_group()))]
 pub struct Video {
-    /// Generate an emoji WEBM file
-    #[clap(long)]
-    emoji: bool,
-
-    /// Generate a sticker WEBM file
-    #[clap(long)]
-    sticker: bool,
+    #[clap(flatten)]
+    pack_kinds: PackKindArgs,
 
     /// Path to the input media file(s) or directory(ies) containing media files
     /// to be processed.
@@ -86,11 +80,16 @@ pub struct Video {
     ffmpeg_args: Vec<String>,
 }
 
-fn video_group() -> ArgGroup {
-    ArgGroup::new("video embed kind")
-        .required(true)
-        .multiple(true)
-        .args(&["emoji", "sticker"])
+#[derive(Debug, Args)]
+#[group(required = true, multiple = true)]
+struct PackKindArgs {
+    /// Generate an emoji WEBM file
+    #[clap(long)]
+    emoji: bool,
+
+    /// Generate a sticker WEBM file
+    #[clap(long)]
+    sticker: bool,
 }
 
 fn default_concurrency() -> NonZeroUsize {
@@ -103,16 +102,16 @@ fn default_concurrency() -> NonZeroUsize {
 #[async_trait]
 impl crate::cmd::Cmd for Video {
     async fn run(self) -> Result {
-        let pack_entry_kinds = [
-            self.emoji.then_some(PackEntryKind::Emoji),
-            self.sticker.then_some(PackEntryKind::Sticker),
+        let pack_kinds = [
+            self.pack_kinds.emoji.then_some(PackKind::Emoji),
+            self.pack_kinds.sticker.then_some(PackKind::Sticker),
         ]
         .into_iter()
         .flatten()
         .collect();
 
         let context = MultiVideoGenContext::builder()
-            .pack_entry_kinds(pack_entry_kinds)
+            .pack_kinds(pack_kinds)
             .inputs(self.input)
             .ffmpeg_args(self.ffmpeg_args)
             .concurrency(self.concurrency)

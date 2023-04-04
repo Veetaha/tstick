@@ -20,12 +20,12 @@ const MAX_CRF: usize = 63;
 
 #[derive(strum::Display, Debug, Clone, Copy, PartialEq, Eq, Hash)]
 #[strum(serialize_all = "kebab-case")]
-pub(crate) enum PackEntryKind {
+pub(crate) enum PackKind {
     Emoji,
     Sticker,
 }
 
-impl PackEntryKind {
+impl PackKind {
     fn max_bytes(&self) -> usize {
         match self {
             Self::Emoji => MAX_EMOJI_BYTES,

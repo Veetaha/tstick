@@ -1,5 +1,5 @@
 use super::single_gen::{SingleVideoGenContext, SingleVideoGenOptions};
-use super::PackEntryKind;
+use super::PackKind;
 use crate::ffmpeg::Ffmpeg;
 use crate::prelude::*;
 use crate::util::path::Utf8StemmedPathBuf;
@@ -8,9 +8,10 @@ use futures::prelude::*;
 use std::num::NonZeroUsize;
 use std::sync::Arc;
 use std::time::Duration;
+use crate::display;
 
 pub(crate) struct MultiVideoGenContext {
-    pack_entry_kinds: Vec<PackEntryKind>,
+    pack_kinds: Vec<PackKind>,
 
     inputs: Vec<Utf8PathBuf>,
     output: Option<Utf8PathBuf>,
@@ -25,7 +26,7 @@ pub(crate) struct MultiVideoGenContext {
 impl MultiVideoGenContext {
     #[builder]
     pub(crate) fn new(
-        pack_entry_kinds: Vec<PackEntryKind>,
+        pack_kinds: Vec<PackKind>,
 
         inputs: Vec<Utf8PathBuf>,
         output: Option<Utf8PathBuf>,
@@ -41,12 +42,12 @@ impl MultiVideoGenContext {
         overwrite: bool,
         publisher: Option<String>,
     ) -> Result<Self> {
-        if pack_entry_kinds.is_empty() {
+        if pack_kinds.is_empty() {
             bail!("No pack kinds were specified");
         }
 
-        if !pack_entry_kinds.iter().all_unique() {
-            bail!("Duplicate pack kinds found, but they must be unique: {pack_entry_kinds:?}");
+        if !pack_kinds.iter().all_unique() {
+            bail!("Duplicate pack kinds found, but they must be unique: {pack_kinds:?}");
         }
 
         let options = SingleVideoGenOptions {
@@ -59,7 +60,7 @@ impl MultiVideoGenContext {
         };
 
         Ok(Self {
-            pack_entry_kinds,
+            pack_kinds,
             inputs,
             output,
             options: Arc::new(options),
@@ -82,19 +83,19 @@ impl MultiVideoGenContext {
 }
 
 impl MultiVideoGenContext {
-    fn contexts_for_pack_entry_kind(
+    fn contexts_for_pack_kind(
         &self,
         inputs: &[Utf8StemmedPathBuf],
-        pack_entry_kind: PackEntryKind,
+        pack_kind: PackKind,
     ) -> Result<Vec<SingleVideoGenContext>> {
         // This hack with `cloned()` is needed due to a compiler bug (rust/issues/102211)
         inputs
             .iter()
             .map(move |input| {
-                let output = self.out_file(pack_entry_kind, input.as_path())?;
+                let output = self.out_file(pack_kind, input.as_path())?;
                 Ok(SingleVideoGenContext {
                     options: self.options.clone(),
-                    pack_entry_kind,
+                    pack_kind,
                     input: input.clone(),
                     output,
                 })
@@ -120,9 +121,9 @@ impl MultiVideoGenContext {
         crate::fs::validate_duplicate_input_names(&input_files)?;
 
         let contexts: Vec<_> = self
-            .pack_entry_kinds
+            .pack_kinds
             .iter()
-            .map(|&kind| self.contexts_for_pack_entry_kind(&input_files, kind))
+            .map(|&kind| self.contexts_for_pack_kind(&input_files, kind))
             .flatten_ok()
             .try_collect()?;
 
@@ -131,6 +132,8 @@ impl MultiVideoGenContext {
             contexts.iter().map(|ctx| ctx.output.clone()),
         )
         .await?;
+
+        let start = std::time::Instant::now();
 
         stream::iter(contexts)
             .enumerate()
@@ -143,10 +146,13 @@ impl MultiVideoGenContext {
             .try_collect::<Vec<()>>()
             .await?;
 
+        let elapsed = display::elpased(start);
+        info!("Finished in {}", elapsed);
+
         Ok(())
     }
 
-    fn out_file(&self, pack_entry_kind: PackEntryKind, input: &Utf8Path) -> Result<Utf8PathBuf> {
+    fn out_file(&self, pack_kind: PackKind, input: &Utf8Path) -> Result<Utf8PathBuf> {
         let out_dir = self.output.as_deref().map(Ok).unwrap_or_else(|| {
             input.parent().with_context(|| {
                 format!("There is no parent directory for the input file {}", input)
@@ -157,7 +163,7 @@ impl MultiVideoGenContext {
             .file_stem()
             .with_context(|| format!("Input must have a file name, but got `{input:?}`"))?;
 
-        Ok(out_dir.join(format!("{file_name}-{pack_entry_kind}.webm")))
+        Ok(out_dir.join(format!("{file_name}-{pack_kind}.webm")))
     }
 }
 
@@ -200,13 +206,13 @@ mod tests {
             let input = tempfile::NamedTempFile::new().unwrap().into_temp_path();
             fs::write(&input, "hello").await.unwrap();
 
-            let pack_entry_kind = PackEntryKind::Emoji;
+            let pack_kind = PackKind::Emoji;
 
-            let mock_ffmpeg = SharedMockFfmpeg::with_best_crf(25, pack_entry_kind);
+            let mock_ffmpeg = SharedMockFfmpeg::with_best_crf(25, pack_kind);
 
             let ctx = MultiVideoGenContext::builder()
                 .input(Utf8PathBuf::try_from(input.to_path_buf()).unwrap())
-                .pack_entry_kind(pack_entry_kind)
+                .pack_kind(pack_kind)
                 .overwrite(false)
                 .ffmpeg(mock_ffmpeg.clone());
 

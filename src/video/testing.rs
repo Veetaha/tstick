@@ -1,4 +1,4 @@
-use super::{PackEntryKind, MAX_CRF};
+use super::{PackKind, MAX_CRF};
 use crate::prelude::*;
 use async_trait::async_trait;
 use std::sync::{Arc, Mutex};
@@ -22,7 +22,7 @@ impl SharedMockFfmpeg {
         })))
     }
 
-    pub(crate) fn with_best_crf(best_crf: usize, kind: PackEntryKind) -> Arc<Self> {
+    pub(crate) fn with_best_crf(best_crf: usize, kind: PackKind) -> Arc<Self> {
         Self::new((0..=MAX_CRF).map(|crf| (crf, kind.max_bytes() + best_crf - crf)))
     }
 
