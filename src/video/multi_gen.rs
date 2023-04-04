@@ -1,5 +1,6 @@
 use super::single_gen::{SingleVideoGenContext, SingleVideoGenOptions};
 use super::PackKind;
+use crate::display;
 use crate::ffmpeg::Ffmpeg;
 use crate::prelude::*;
 use crate::util::path::Utf8StemmedPathBuf;
@@ -8,7 +9,6 @@ use futures::prelude::*;
 use std::num::NonZeroUsize;
 use std::sync::Arc;
 use std::time::Duration;
-use crate::display;
 
 pub(crate) struct MultiVideoGenContext {
     pack_kinds: Vec<PackKind>,

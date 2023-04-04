@@ -1,6 +1,6 @@
-mod webm_vp9_two_pass;
-mod single_gen;
 mod multi_gen;
+mod single_gen;
+mod webm_vp9_two_pass;
 
 #[cfg(test)]
 mod testing;

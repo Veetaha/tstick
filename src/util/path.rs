@@ -2,7 +2,6 @@ use crate::prelude::*;
 use easy_ext::ext;
 use std::path::Path;
 
-
 #[ext(PathExt)]
 pub(crate) impl Path {
     fn unwrap_utf8(&self) -> &Utf8Path {

@@ -1,5 +1,5 @@
 use crate::prelude::*;
-use expect_test::{ExpectFile, expect_file};
+use expect_test::{expect_file, ExpectFile};
 
 /// Version of [`expect_test::expect_file!`] macro that organizes the snapshots under
 /// `tests/snapshots` folder. It automatically creates the folder if it doesn't exist.
