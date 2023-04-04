@@ -6,7 +6,7 @@ This is a cross-platform tool to automate the management of Telegram emojis and 
 
 Here is a quick demo that displays how `tstick` can be used to generate a video emoji.
 
-![](https://user-images.githubusercontent.com/36276403/227409531-02dcc5af-94e2-4279-ad3d-9fdafb797e6e.gif)
+![](https://user-images.githubusercontent.com/36276403/229662583-649da937-c4cd-4d0d-ba36-b67f939afe5a.gif)
 
 
 Specify the input file and any additional options to `ffmpeg`, and `tstick` will find the best quality options (CRF) to fit into Telegram's emoji/sticker file size limits. It automatically resizes the image to fit into 100x100 or 512x512 for emoji and for sticker respectively according to the source video's largest side.
@@ -67,24 +67,39 @@ The output file will be put into the same directory where the input file is loca
 
 This command implements the two-pass method described in the following docs: <https://trac.ffmpeg.org/wiki/Encode/VP9>
 
-Usage: tstick video [OPTIONS] <KIND> <INPUT> [OUTPUT] [FFMPEG_ARGS]...
+Usage: tstick video [OPTIONS] <--emoji|--sticker> [FFMPEG_ARGS]...
 
 Arguments:
-  <KIND>
-          Kind of the output to generate
-
-          [possible values: emoji, sticker]
-
-  <INPUT>
-          Path to the input media file
-
-  [OUTPUT]
-          Path to the output. By default, the output will be put into the same directory under the name `emoji.webm` or `sticker.webm` depending on the kind of the output
-
   [FFMPEG_ARGS]...
           Additional arguments that will be passed to ffmpeg between the input and output args. Beware that they may break the internal logic of generating the `ffmpeg` command. For example, if you need additional video filter use `--filter` flag instead
 
 Options:
+      --emoji
+          Generate an emoji WEBM file
+
+      --sticker
+          Generate a sticker WEBM file
+
+  -i, --input <INPUT>
+          Path to the input media file(s) or directory(ies) containing media files to be processed.
+
+          If the input is a directory, all files inside of it will be processed. Make sure there are no other files in the directory other than the ones to generate emoji/stickers for.
+
+  -o, --output <OUTPUT>
+          Path to the output directory where the generated emoji/stickers will be put. The output files will be named after the input files using the following pattern:
+
+          `{input_file_name}.emoji.webm` or `{input_file_name}.sticker.webm`
+
+          If this options is not specified, the output files will be put into the same directories where the input files are located, even if they are in different directories.
+
+          Make sure all input file names are unique, otherwise there will be conflicts when writing to the output directory.
+
+      --overwrite
+          Overwrite the output files if they already exist, without asking for confirmation
+
+      --publisher <PUBLISHER>
+          Set the `publisher` metadata of the generated emoji/sticker WEBM file. It is recommended to set this to the URL of the Telegram channel or other resource where emojis/stickers are promoted. This helps with keeping the source of the emoji/sticker file even if it's copied to another pack by someone else
+
       --begin <BEGIN>
           The time from which the video will be cut.
 
@@ -97,6 +112,11 @@ Options:
 
       --filter <FILTER>
           The value of the video filter flag that will be passed to ffmpeg before rescaling it to the needed size
+
+      --concurrency <CONCURRENCY>
+          Maximum number of inputs to be proceesed in parallel
+
+          [default: {PLATFORM_SPECIFIC}]
 
   -h, --help
           Print help (see a summary with '-h')

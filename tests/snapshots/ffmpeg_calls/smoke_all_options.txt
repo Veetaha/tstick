@@ -1,0 +1,30 @@
+-y
+-i
+{temp_dir}/
+-ss
+1.5
+-to
+2.5
+-metadata
+publisher=custom publisher
+-metadata
+encoded_by=https://github.com/Veetaha/tstick
+-fps_mode
+passthrough
+-vcodec
+libvpx-vp9
+-b:v
+0
+-an
+-filter:v
+custom_filter,scale=iw * min(100 / iw\, 100 / ih):ih * min(100 / iw\, 100 / ih):flags=lanczos,pad=100:100:-1:-1:color=0x00000000
+-passlogfile
+{temp_dir}/ffmpeg2pass
+custom_ffmpeg_arg
+-crf
+31
+-pass
+1
+-f
+null
+NUL
